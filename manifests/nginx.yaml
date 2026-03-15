@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1        # number of pod instances to run
+  selector:
+    matchLabels:
+      app: nginx     # must match template labels below
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:stable   # use the stable release tag
+          ports:
+            - containerPort: 80  # port the container listens on
+          resources:
+            requests:
+              cpu: 100m       # minimum CPU guaranteed to the container
+              memory: 64Mi    # minimum memory guaranteed to the container
+            limits:
+              cpu: 250m       # maximum CPU the container may use
+              memory: 128Mi   # maximum memory before the container is OOM-killed
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: NodePort       # exposes the service on a port of every node
+  selector:
+    app: nginx         # routes traffic to pods with this label
+  ports:
+    - port: 80         # service port (cluster-internal)
+      targetPort: 80   # port on the pod to forward to
+      nodePort: 30080  # external port accessible on every node

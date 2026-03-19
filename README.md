@@ -99,3 +99,7 @@ kubectl delete -f kubernetes/nginx.yaml
 - <https://gist.github.com/anantharaman93/81b55a23b262ed46d5ea5afd777938fa>
 - <https://github.com/piyushsachdeva/CKA-2024/blob/main/Resources/Day27/readme.md>
 - <https://github.com/techiescamp/kubeadm-scripts>
+
+### TODOs
+
+- <https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#check-required-ports>

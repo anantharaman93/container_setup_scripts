@@ -3,6 +3,7 @@
 # Configures containerd to trust a plain HTTP (insecure) private registry.
 # Usage: ./configure-insecure-registry.sh <registry-host:port>
 # Ref: https://github.com/containerd/containerd/blob/main/docs/hosts.md#bypass-tls-verification-example
+# https://medium.com/@schottz/how-to-skip-tls-verify-fot-internal-registry-on-containerd-e039887bcb83
 
 set -e
 

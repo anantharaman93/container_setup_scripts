@@ -35,7 +35,14 @@ echo "Starting Kubernetes Common Setup for $NAME $VERSION_CODENAME..."
 # ==========================================
 echo "Disabling swap..."
 sudo swapoff -a
-sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+# sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+sudo sed -Ei '/^[[:space:]]*#/! s|^([^#]*[[:space:]]swap[[:space:]].*)$|#\1|' /etc/fstab
+
+if [[ $(swapon --noheadings --show | wc -l) -ne 0 ]]; then
+  echo "Error: Swap is still enabled. Kubernetes requires swap to be disabled."
+  swapon --show
+  exit 1
+fi
 
 echo "Loading kernel modules..."
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf > /dev/null

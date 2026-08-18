@@ -45,3 +45,7 @@ docker compose down
 ```
 
 For access without TLS, configure each Docker client to trust `<registry-host>:9050` as an insecure registry. Docker permits plain HTTP automatically only for `localhost`.
+
+## References
+
+- <https://github.com/Joxit/docker-registry-ui/>

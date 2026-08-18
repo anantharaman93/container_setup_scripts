@@ -1,0 +1,29 @@
+services:
+  registry:
+    image: registry:3
+    container_name: secure-local-registry
+    ports:
+      - "9050:5000"
+    restart: unless-stopped
+    volumes:
+      - ./auth:/auth:ro
+      - ./data:/var/lib/registry
+    environment:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
+
+  registry-ui:
+    image: joxit/docker-registry-ui:2
+    ports:
+      - "9051:80"
+    restart: unless-stopped
+    environment:
+      SINGLE_REGISTRY: "true"
+      REGISTRY_SECURED: "true"
+      REGISTRY_TITLE: Mickey Docker Registry
+      DELETE_IMAGES: "true"
+      SHOW_CONTENT_DIGEST: "true"
+      THEME: dark
+      NGINX_PROXY_PASS_URL: http://registry:5000

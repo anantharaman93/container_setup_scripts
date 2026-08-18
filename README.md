@@ -24,7 +24,6 @@ docker run --rm hello-world
 - <https://docs.docker.com/engine/install/ubuntu/>
 - <https://docs.docker.com/engine/install/linux-postinstall/>
 
-
 ## Kubernetes
 
 Bootstrap a Kubernetes `1.35.0` cluster using `kubeadm`, `containerd`, and Calico `v3.31.4`.
@@ -103,3 +102,9 @@ kubectl delete -f kubernetes/nginx.yaml
 ### TODOs
 
 - <https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#check-required-ports>
+
+## Other Components
+
+### Secure Local Registry
+
+See [`registry/README.md`](registry/README.md).

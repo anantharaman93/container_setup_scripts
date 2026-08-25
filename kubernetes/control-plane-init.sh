@@ -8,7 +8,8 @@ set -e
 # Variables
 # ==========================================
 CALICO_VERSION="v3.31.4"
-POD_NETWORK_CIDR="192.168.0.0/16"
+# POD_NETWORK_CIDR="192.168.0.0/16"
+POD_NETWORK_CIDR="172.16.0.0/16"
 
 echo "Starting Kubernetes Control Plane Initialization..."
 
@@ -37,8 +38,14 @@ echo "Installing Calico Network Plugin (Version: $CALICO_VERSION)..."
 
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/${CALICO_VERSION}/manifests/tigera-operator.yaml
 
-echo "Downloading custom-resources.yaml locally..."
-curl -O https://raw.githubusercontent.com/projectcalico/calico/${CALICO_VERSION}/manifests/custom-resources.yaml
+if [[ ! -f custom-resources.yaml ]]; then
+	echo "Downloading custom-resources.yaml locally..."
+	curl -O https://raw.githubusercontent.com/projectcalico/calico/${CALICO_VERSION}/manifests/custom-resources.yaml
+else
+	echo "Using existing custom-resources.yaml."
+fi
+
+sed -i "s|cidr: 192.168.0.0/16|cidr: ${POD_NETWORK_CIDR}|" custom-resources.yaml
 
 kubectl apply -f custom-resources.yaml
 

@@ -28,6 +28,9 @@ docker run --rm hello-world
 
 Bootstrap a Kubernetes `1.35.0` cluster using `kubeadm`, `containerd`, and Calico `v3.31.4`.
 
+The cluster uses `172.16.0.0/16` for pod addresses; choose a CIDR that does not overlap node,
+Service, VPN, or corporate networks before changing it.
+
 ### 1. Every node
 
 Installs containerd, kubeadm, kubelet, and kubectl:
@@ -92,6 +95,58 @@ You should receive the nginx welcome page HTML.
 ```bash
 kubectl delete -f kubernetes/nginx.yaml
 ```
+
+### 6. Tear down the entire cluster
+
+Run the worker-node steps first. Run the control-plane steps last. These commands remove the
+Kubernetes cluster state and Calico CNI state, but leave the installed packages and containerd in
+place so the cluster can be bootstrapped again.
+
+#### Each worker node
+
+From the control plane, optionally drain each worker before resetting it:
+
+```bash
+kubectl drain <worker-machine-name> --ignore-daemonsets --delete-emptydir-data
+```
+
+Then, on that worker node:
+
+```bash
+sudo kubeadm reset --force
+sudo rm -rf /etc/cni/net.d
+sudo ip link delete vxlan.calico 2>/dev/null || true
+sudo ip link delete tunl0 2>/dev/null || true
+for iface in $(ip -o link show | awk -F': ' '$2 ~ /^cali/ {sub(/@.*/, "", $2); print $2}'); do
+	sudo ip link delete "$iface" 2>/dev/null || true
+done
+```
+
+#### Control-plane node
+
+After every worker has been reset, run the following on the control-plane node:
+
+```bash
+sudo kubeadm reset --force
+sudo rm -rf /etc/cni/net.d
+sudo ip link delete vxlan.calico 2>/dev/null || true
+sudo ip link delete tunl0 2>/dev/null || true
+for iface in $(ip -o link show | awk -F': ' '$2 ~ /^cali/ {sub(/@.*/, "", $2); print $2}'); do
+	sudo ip link delete "$iface" 2>/dev/null || true
+done
+rm -rf "$HOME/.kube"
+```
+
+If this machine will no longer manage the cluster, remove the local Calico manifest downloaded by
+the bootstrap script as well:
+
+```bash
+rm -f custom-resources.yaml
+```
+
+`kubeadm reset` does not remove `kubeconfig` files, CNI configuration, or network interfaces. The
+extra cleanup is needed before recreating this Calico-based cluster, especially when changing the
+pod network CIDR.
 
 ### Kubernetes References
 
